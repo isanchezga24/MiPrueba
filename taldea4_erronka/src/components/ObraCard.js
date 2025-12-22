@@ -78,11 +78,6 @@ const ObraCard = ({ obra }) => {
         {/* --- FOOTER: Botones de Acción --- */}
         <div className="card-footer bg-white border-top-0 d-flex align-items-center py-3 px-3 rounded-bottom-4">
           
-          {/* Botón principal */}
-          <button className="btn btn-link p-0 me-auto fw-bold text-decoration-none text-dark">
-            Xehetasunak ikusi
-          </button>
-          
           {/* Like */}
           <button 
             className="btn btn-light rounded-circle me-2 text-center d-flex align-items-center justify-content-center" 
