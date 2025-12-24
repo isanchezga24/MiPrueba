@@ -6,6 +6,7 @@ import Galeria from './pages/Galeria.jsx';
 
 import Kontaktua from './pages/Kontaktua.jsx';
 import Erregistratu from './pages/Erregistratu.jsx';
+import Enkanteak from './pages/Enkanteak.jsx';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           
           <Route path="kontaktua" element={<Kontaktua />} /> 
           <Route path="erregistratu" element={<Erregistratu />} />
+          <Route path='enkanteak' element={<Enkanteak/>}/>
           
         </Route>
       </Routes>

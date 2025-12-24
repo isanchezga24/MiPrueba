@@ -2,8 +2,13 @@
 
 body {
   margin: 0;           
-  padding: 0;           
-  background-color: #f0f0f0 !important; 
+  padding: 0;
+  
+  background-color: #f4f1ea !important; 
+  background-attachment: fixed;
+  background-size: cover;
+  min-height: 100vh;
+
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -18,10 +23,12 @@ code {
 
 .graffiti-testua {
   font-family: 'Kaushan Script', cursive;
-  color: orange;
-  font-size: 1.7em; 
-  text-shadow: 3px 3px 0px #000; 
+  color: #ffc107; 
+  font-size: 1.8em; 
+  text-shadow: 
+    2px 2px 0px #000,
+    4px 4px 5px rgba(0,0,0,0.3);
   transform: rotate(-5deg); 
   display: inline-block; 
-  margin-right: 2px;
+  margin-right: 5px;
 }

@@ -10,7 +10,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
         @viteReactRefresh
-        @vite(['resources/css/App.css', 'resources/js/index.jsx'])
+        @vite(['resources/css/app.css', 'resources/js/index.jsx'])
     </head>
     <body>
         <div id="root"></div>

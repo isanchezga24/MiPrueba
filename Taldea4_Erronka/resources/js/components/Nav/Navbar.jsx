@@ -45,7 +45,7 @@ const Navbar = () => {
               <a className="nav-link text-white fw-bold" href="/galeria">GALERIA</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link text-white fw-bold" href="#">ENKANTEAK</a>
+              <a className="nav-link text-white fw-bold" href="/enkanteak">ENKANTEAK</a>
             </li>
             <li className="nav-item">
               <a className="nav-link text-white fw-bold" href="#">EROSKETAK</a>
