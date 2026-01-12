@@ -1,0 +1,67 @@
+/* resources/css/erosketak.css */
+
+.shop-card {
+    background: #fff;
+    border: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px; /* Bordes más suaves */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.shop-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+/* Efecto en la imagen */
+.shop-img-container {
+    height: 250px;
+    overflow: hidden;
+    position: relative;
+}
+
+.shop-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.shop-card:hover .shop-img {
+    transform: scale(1.1); /* Zoom suave al pasar el ratón */
+}
+
+/* Etiqueta de precio flotante */
+.price-tag {
+    position: absolute;
+    top: 20px;
+    right: 0;
+    background-color: #ffc107; /* Amarillo Artetxea */
+    color: #000;
+    font-weight: bold;
+    padding: 5px 15px;
+    font-family: 'Kaushan Script', cursive;
+    font-size: 1.2rem;
+    border-radius: 20px 0 0 20px;
+    box-shadow: -2px 2px 5px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+/* Botón de compra personalizado */
+.btn-erosi {
+    background-color: #212529;
+    color: white;
+    border-radius: 50px;
+    padding: 8px 25px;
+    transition: all 0.3s;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.btn-erosi:hover {
+    background-color: #ffc107;
+    color: black;
+    transform: scale(1.05);
+}
