@@ -8,9 +8,9 @@ const Erregistratu = () => {
     izena: '',
     abizenak: '',
     email: '',
-    telefonoa: '',   // Nuevo
-    helbidea: '',    // Nuevo
-    hiria: '',       // Nuevo
+    telefonoa: '',   
+    kalea: '',   
+    hiria: '',      
     pasahitza: '',
     pasahitzaKonfirmatu: ''
   });

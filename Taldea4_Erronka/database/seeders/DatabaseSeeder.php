@@ -3,25 +3,35 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
+public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. ADMINISTRAZAILEA (Admin)
+        User::create([
+            'izena' => 'Admin',         
+            'abizenak' => 'Nagusia',     
+            'hiria' => 'Bilbo',          
+            'kalea' => 'Kale Nagusia 1', 
+            'telefonoa' => '667588463',
+            'email' => 'admin@artetxea.com',
+            'password' => Hash::make('admin123'),
+            'rola' => 'Administratzailea',
+        ]);
 
-        User::firstOrCreate(
-            ['email' => 'test@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => 'password',
-                'email_verified_at' => now(),
-            ]
-        );
+        // 2. ERABILTZAILEA (Usuario Normal de Prueba)
+        User::create([
+            'izena' => 'Mikel',
+            'abizenak' => 'Testa',
+            'hiria' => 'Gasteiz',
+            'kalea' => 'Dato Kalea 15',
+            'telefonoa' => '667778463',
+            'email' => 'mikel@gmail.com',
+            'password' => Hash::make('12345678'),
+            'rola' => 'Erabiltzailea',
+        ]);
     }
 }
