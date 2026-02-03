@@ -216,6 +216,55 @@ class ObrasSeeder extends Seeder
                 // Orain hasi eta 5 minutura amaitu
                 'enkante_amaiera' => Carbon::now()->addMinutes(3), 
             ],
+            // --- 2. DENDAKO PRODUKTUAK (Erosketak) --
+            [
+                'izenburua' => 'Udazkeneko Paisaia',
+                'artista' => 'Ane Art',
+                'data' => '2024',
+                'mota' => 'modernoa',
+                'irudia' => '/assets/Irudiak-Galeria/Arte Moderno/Mirudi1.jpg',
+                'deskribapena' => 'Olioz egindako paisaia modernoa.',
+                'kokalekua' => 'Donostia',
+                'prezioa' => 450, // PREZIO FINKOA
+                'hasierako_prezioa' => null,
+                'enkante_amaiera' => null, // EZ DA ENKANTEA
+            ],
+            [
+                'izenburua' => 'Hiriko Argiak',
+                'artista' => 'Urban Jon',
+                'data' => '2023',
+                'mota' => 'urbanoa',
+                'irudia' => '/assets/Irudiak-Galeria/Arte Urbano/Uirudi1.avif',
+                'deskribapena' => 'New Yorkeko kaleak gauez.',
+                'kokalekua' => 'Gasteiz',
+                'prezioa' => 120, // MERKEA
+                'hasierako_prezioa' => null,
+                'enkante_amaiera' => null,
+            ],
+            [
+                'izenburua' => 'Burdinazko Eskultura',
+                'artista' => 'Txillida Fan',
+                'data' => '2000',
+                'mota' => 'eskultura',
+                'irudia' => '/assets/Irudiak-Galeria/Eskulturak/Eskul1.jpg',
+                'deskribapena' => 'Burdinazko pieza txikia.',
+                'kokalekua' => 'Hernani',
+                'prezioa' => 1200, // GARESTIA
+                'hasierako_prezioa' => null,
+                'enkante_amaiera' => null,
+            ],
+             [
+                'izenburua' => 'Lore Urdinak',
+                'artista' => 'Lorea',
+                'data' => '2025',
+                'mota' => 'klasikoa',
+                'irudia' => '/assets/Irudiak-Galeria/Arte Klasiko/Kirudi2.jpg',
+                'deskribapena' => 'Dekoraziorako aproposa.',
+                'kokalekua' => 'Baiona',
+                'prezioa' => 85,
+                'hasierako_prezioa' => null,
+                'enkante_amaiera' => null,
+            ],
         ];
 
         foreach ($obras as $obra) {

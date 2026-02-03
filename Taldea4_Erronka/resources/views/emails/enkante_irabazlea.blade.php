@@ -4,6 +4,15 @@
     <title>Zorionak!</title>
 </head>
 <body style="font-family: Arial, sans-serif; color: #333;">
+
+<div class="header">
+            <img src="{{ $message->embed(public_path('assets/logo-artetxea.png')) }}" 
+                 alt="Artetxea Logo" 
+                 style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid #212529; background-color: white; margin-bottom: 10px; object-fit: cover;">
+            
+            <h1>🎉 ZORIONAK! 🎉</h1>
+            <p>Enkantea irabazi duzu!</p>
+        </div>
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
         <h1 style="color: #d4af37; text-align: center;">ZORIONAK! 🏆</h1>
         

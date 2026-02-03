@@ -20,7 +20,8 @@ class Obra extends Model
         'kokalekua',
         'enkante_amaiera',   
         'hasierako_prezioa',
-        'irabazlea_id'
+        'irabazlea_id',
+        'eroslea_id'
     ];
 
     // Relación con Pujas

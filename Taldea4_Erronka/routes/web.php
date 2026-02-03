@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\EnkanteController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ErosketaController;
+use App\Http\Controllers\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,9 +40,7 @@ Route::get('/erregistratu', function () {
     return Inertia::render('Erregistratu');
 })->name('register');
 
-Route::get('/erosketak', function () {
-    return Inertia::render('Erosketak');
-})->name('erosketak');
+Route::get('/erosketak', [App\Http\Controllers\ErosketaController::class, 'index'])->name('erosketak');
 
 Route::get('/enkanteak', function () {
     return Inertia::render('Enkanteak');
@@ -67,6 +67,15 @@ Route::post('/enkante/{id}/pujar', [EnkanteController::class, 'pujar'])
 Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
     ->middleware(['auth', 'admin']) // Segurtasuna: Bakarrik adminak
     ->name('admin.dashboard');
-    
+   
+    // Ruta para comprar (protegida para usuarios logueados)
+Route::post('/erosi', [ErosketaController::class, 'erosi'])
+    ->middleware(['auth'])
+    ->name('erosi');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/cart', [CartController::class, 'index']);      // Ver carrito
+    Route::post('/cart', [CartController::class, 'add']);       // Añadir
+    Route::delete('/cart/{id}', [CartController::class, 'remove']); // Borrar
+});
 // Si tienes rutas de Fortify (login, logout), Laravel las gestiona automáticamente,
 // pero asegúrate de que tus botones apunten a /login o /logout.

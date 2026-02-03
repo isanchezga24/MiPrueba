@@ -1,134 +1,62 @@
-/* resources/css/saski.css */
-
-/* FONDO OSCURO (Backdrop) */
+/* Pantaila osoa estali (Overlay) */
 .saski-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(28, 28, 28, 0.6); /* Oscuro pero no negro total */
-    backdrop-filter: blur(5px); /* Efecto cristal desenfocado de fondo */
-    z-index: 1050;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    /* GARRANTZITSUA: Hau da zenbakirik altuena */
+    z-index: 2147483647; 
     display: flex;
-    justify-content: flex-end; /* El carrito saldrá por la derecha */
-    opacity: 0;
-    animation: fadeIn 0.3s forwards;
+    justify-content: flex-end;
+    backdrop-filter: blur(2px);
 }
 
-/* CONTENEDOR DEL CARRITO (Panel Lateral) */
-.saski-panel {
-    width: 100%;
-    max-width: 450px;
+/* Saskiaren edukiontzia */
+.saski-container {
+    width: 400px;
+    max-width: 85vw;
     height: 100%;
-    background-color: #fdfbf7; /* Color blanco roto/papel */
-    box-shadow: -10px 0 25px rgba(0,0,0,0.2);
+    background-color: white;
     display: flex;
     flex-direction: column;
-    transform: translateX(100%); /* Empieza escondido a la derecha */
-    animation: slideInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-    border-left: 5px solid #ffc107; /* Borde amarillo marca de la casa */
+    box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+    animation: slideIn 0.3s ease-out;
 }
 
-/* CABECERA */
-.saski-header {
-    background: #fff;
-    padding: 20px;
-    border-bottom: 2px dashed #e0e0e0; /* Línea de puntos como un ticket */
-}
-
-.saski-title {
-    font-family: 'Kaushan Script', cursive;
-    font-size: 1.8rem;
-    color: #333;
-    margin: 0;
-}
-
-/* LISTA DE ITEMS */
-.saski-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-}
-
-/* TARJETA DE PRODUCTO INDIVIDUAL */
-.saski-item {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 10px;
-    margin-bottom: 15px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.saski-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    border-color: #ffc107;
-}
-
-.saski-img {
-    width: 70px;
-    height: 70px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-
-/* BOTÓN DE ELIMINAR */
-.btn-delete {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #fff0f0;
-    color: #dc3545;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.btn-delete:hover {
-    background: #dc3545;
-    color: white;
-    transform: rotate(90deg);
-}
-
-/* FOOTER (TOTAL Y PAGAR) */
-.saski-footer {
-    background: #fff;
-    padding: 25px;
-    border-top: 2px solid #f0f0f0;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
-}
-
-.btn-checkout {
-    background: #212529;
-    color: #ffc107;
-    border: none;
-    padding: 15px;
-    width: 100%;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-radius: 8px;
-    transition: background 0.3s;
-}
-
-.btn-checkout:hover {
-    background: #000;
-    color: #fff;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-/* ANIMACIONES */
-@keyframes fadeIn {
-    to { opacity: 1; }
-}
-
-@keyframes slideInRight {
+@keyframes slideIn {
+    from { transform: translateX(100%); }
     to { transform: translateX(0); }
 }
+
+/* Goiburua */
+.saski-header {
+    padding: 20px;
+    background-color: #212529;
+    color: #ffc107;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #ffc107;
+}
+
+.saski-header h2 { margin: 0; font-size: 1.2rem; font-weight: bold; text-transform: uppercase; }
+.close-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+
+/* Gorputza */
+.saski-body { flex: 1; overflow-y: auto; padding: 20px; background-color: #f8f9fa; }
+
+/* Itemak */
+.saski-item { display: flex; align-items: center; background: white; border: 1px solid #e9ecef; border-radius: 8px; padding: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.saski-item img { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+.item-details { margin-left: 15px; flex-grow: 1; min-width: 0; }
+.item-details h4 { margin: 0; font-size: 1rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.price-tag { font-weight: bold; color: #d4af37; font-size: 1.1rem; }
+.remove-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 1.1rem; }
+
+/* Oina */
+.saski-footer { padding: 25px; background-color: white; border-top: 1px solid #ddd; }
+.total-row { display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: bold; margin-bottom: 20px; }
+.checkout-btn { width: 100%; padding: 15px; background-color: #212529; color: #ffc107; border: none; font-weight: bold; border-radius: 8px; }
+.checkout-btn.bg-success { background-color: #198754; color: white; }
