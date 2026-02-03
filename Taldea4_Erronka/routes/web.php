@@ -64,9 +64,15 @@ Route::post('/enkante/{id}/pujar', [EnkanteController::class, 'pujar'])
     ->name('enkante.pujar');
 
      // Admin Dashboard Ruta
-Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])
-    ->middleware(['auth', 'admin']) // Segurtasuna: Bakarrik adminak
-    ->name('admin.dashboard');
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    
+    // Admin Panela ikusi
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    
+    // OBRA GORDE (Hau da falta zena edo gaizki zegoena)
+    Route::post('/obrak', [AdminController::class, 'store'])->name('admin.obrak.store');
+
+});
    
     // Ruta para comprar (protegida para usuarios logueados)
 Route::post('/erosi', [ErosketaController::class, 'erosi'])
