@@ -116,9 +116,12 @@ const Navbar = () => {
                                 <button className="btn btn-outline-light btn-sm fw-bold rounded-pill" onClick={() => setShowLogin(true)}>
                                     Saioa Hasi
                                 </button>
-                                <Link href="/erregistratu" className="btn btn-warning btn-sm fw-bold rounded-pill text-dark">
-                                    Erregistratu
-                                </Link>
+                            <Link 
+                            href="/erregistratu" 
+                            className="btn btn-warning btn-sm fw-bold rounded-pill text-dark btn-cta-nav" // <--- AÑADIDO btn-cta-nav
+                            >
+                            Erregistratu
+                            </Link>
                             </div>
                         )}
                     </div>
