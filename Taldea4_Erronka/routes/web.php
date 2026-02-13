@@ -6,6 +6,7 @@ use App\Http\Controllers\EnkanteController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ErosketaController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\KontaktuaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,5 +84,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart', [CartController::class, 'add']);       // Añadir
     Route::delete('/cart/{id}', [CartController::class, 'remove']); // Borrar
 });
+Route::get('/kontaktua', [KontaktuaController::class, 'index'])->name('kontaktua');
+Route::post('/kontaktua', [KontaktuaController::class, 'store']);
 // Si tienes rutas de Fortify (login, logout), Laravel las gestiona automáticamente,
 // pero asegúrate de que tus botones apunten a /login o /logout.

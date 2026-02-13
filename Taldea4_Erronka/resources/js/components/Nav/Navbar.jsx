@@ -70,7 +70,9 @@ const Navbar = () => {
                         <li className="nav-item"><Link href="/enkanteak" className="nav-link text-white">ENKANTEAK</Link></li>
                         <li className="nav-item"><Link href="/erosketak" className="nav-link text-white">DENDA</Link></li>
                         <li className="nav-item"><Link href="/forua" className="nav-link text-white">FORUA</Link></li>
+                        <li className="nav-item"><Link href="/kontaktua" className="nav-link text-white">KONTAKTUA</Link></li>
                         <li className="nav-item"><Link href="/ranking" className="nav-link text-white">RANKING</Link></li>
+                        
 
                         {/* ADMIN BOTOIA */}
                         {user && user.rola === 'Administratzailea' && (
