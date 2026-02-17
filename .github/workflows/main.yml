@@ -1,7 +1,10 @@
+  GNU nano 7.2                                                             deploy.yml                                                                       
 name: Deploy React to EC2
+
 on:
   push:
     branches: [ main ]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -9,21 +12,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy via SSH
+      - name: Deploy via SSH to AWS
         uses: appleboy/ssh-action@master
         with:
           host: 54.242.1.46
           username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }} # Aquí GitHub usará tu Artetxe_erronka.pem
           script: |
-            
+            # 1. Asegurar que el directorio base existe y tiene permisos
+            sudo mkdir -p /var/www/html
+            sudo chown -R ubuntu:ubuntu /var/www/html
+
+            # 2. Entrar a la carpeta raíz de despliegue
             cd /var/www/html
-            
+
+            # 3. Si la carpeta del repo no existe, clonar por primera vez
+            # Si ya existe, entrar y bajar los cambios de GitHub
             if [ ! -d "Taldea4_Erronkaa" ]; then
               git clone https://github.com/${{ github.repository }}.git Taldea4_Erronkaa
             fi
-            
+
             cd Taldea4_Erronkaa
             git pull origin main
-            
+
+            # 4. Construir y levantar los contenedores con Docker Compose
+            # Esto usará el Dockerfile que apunta a la subcarpeta Taldea4_Erronka
             docker compose up -d --build
