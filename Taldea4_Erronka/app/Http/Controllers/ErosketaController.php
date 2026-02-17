@@ -59,13 +59,15 @@ class ErosketaController extends Controller
 
         foreach ($obras as $obra) {
             if ($obra->eroslea_id || $obra->irabazlea_id) {
-                return response()->json(['error' => "Barkatu, '${obra->izenburua}' jada salduta dago."], 409);
+                return response()->json(['error' => "Barkatu, '{$obra->izenburua}' jada salduta dago."], 409);
             }
             $total += $obra->prezioa;
         }
 
-        foreach ($obras as $obra) {
-            $obra->update(['eroslea_id' => $user->id]);
+       foreach ($obras as $obra) {
+            /** @var \App\Models\Obra $obra */
+            $obra->eroslea_id = $user->id;
+            $obra->save();
         }
 
         CartItem::where('user_id', $user->id)->delete();
