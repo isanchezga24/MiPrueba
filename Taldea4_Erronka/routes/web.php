@@ -101,6 +101,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Mezua ezabatu
     Route::delete('/kontaktuak/{id}', [App\Http\Controllers\AdminController::class, 'destroyKontaktua'])->name('admin.kontaktuak.destroy');
 
+    Route::delete('/erabiltzaileak/{id}', [App\Http\Controllers\AdminController::class, 'destroyUser'])->name('admin.users.destroy');
+    Route::post('/kontaktuak/{id}/erantzun', [App\Http\Controllers\AdminController::class, 'erantzunMezua'])->name('admin.kontaktuak.erantzun');
 });
 // Si tienes rutas de Fortify (login, logout), Laravel las gestiona automáticamente,
 // pero asegúrate de que tus botones apunten a /login o /logout.

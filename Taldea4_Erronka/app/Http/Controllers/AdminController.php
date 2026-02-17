@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Obra;
 use App\Models\Kontaktua;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail; 
+use App\Mail\KontaktuaErantzuna;    
 
 class AdminController extends Controller
 {
@@ -20,22 +22,21 @@ class AdminController extends Controller
             'salmentak' => Obra::whereNotNull('eroslea_id')->count(),
         ];
 
-        // Obra GUZTIAK kudeatzeko
         $obrak = Obra::latest()->get();
-        
-        // Jendearen MEZUAK kudeatzeko
         $kontaktuak = Kontaktua::latest()->get();
+        $erabiltzaileak = User::latest()->get(); // <--- Cargamos TODOS los usuarios
 
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
             'obrak' => $obrak,
-            'kontaktuak' => $kontaktuak
+            'kontaktuak' => $kontaktuak,
+            'erabiltzaileak' => $erabiltzaileak // <--- Pasamos los usuarios al frontend
         ]);
     }
 
-    // --- OBRA SORTU (Lehendik zeneukana) ---
     public function store(Request $request)
     {
+        // ... (Tu código actual de store obras se mantiene igual)
         $validated = $request->validate([
             'izenburua' => 'required|string|max:255',
             'artista' => 'required|string|max:255',
@@ -58,22 +59,46 @@ class AdminController extends Controller
         return back()->with('success', 'Obra ondo igo da!');
     }
 
-    // --- OBRA EZABATU (Berria) ---
     public function destroyObra($id)
     {
-        $obra = Obra::findOrFail($id);
-        // Nahi baduzu irudia ere ezabatu diskotik:
-        // if ($obra->irudia && str_starts_with($obra->irudia, '/storage/')) {
-        //     Storage::disk('public')->delete(str_replace('/storage/', '', $obra->irudia));
-        // }
-        $obra->delete();
+        Obra::findOrFail($id)->delete();
         return back()->with('success', 'Obra ondo ezabatu da!');
     }
 
-    // --- MEZUA EZABATU (Berria) ---
     public function destroyKontaktua($id)
     {
         Kontaktua::findOrFail($id)->delete();
         return back()->with('success', 'Mezua ezabatu da!');
+    }
+
+    // --- NUEVO: ELIMINAR USUARIO ---
+    public function destroyUser($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Evitamos que el admin se borre a sí mismo por error
+        if ($user->id === auth()->id()) {
+            return back()->withErrors(['error' => 'Ezin duzu zeure burua ezabatu!']);
+        }
+        
+        $user->delete();
+        return back()->with('success', 'Erabiltzailea ondo ezabatu da!');
+    }
+
+// --- RESPONDER MENSAJE (ENVIAR EMAIL Y BORRAR) ---
+    public function erantzunMezua(Request $request, $id)
+    {
+        $request->validate(['erantzuna' => 'required|string']);
+        
+        $mezua = Kontaktua::findOrFail($id);
+
+        // 1. Enviamos el correo real
+        Mail::to($mezua->email)->send(new KontaktuaErantzuna($mezua, $request->erantzuna));
+
+        // 2. BORRAMOS EL MENSAJE DE LA BASE DE DATOS
+        $mezua->delete();
+
+        // 3. Volvemos al dashboard (Inertia actualizará la lista automáticamente)
+        return back()->with('success', 'Erantzuna ondo bidali zaio erabiltzaileari eta mezua ezabatu da!');
     }
 }

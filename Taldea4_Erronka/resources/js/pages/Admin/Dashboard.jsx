@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
 import { Head, usePage, useForm, router } from '@inertiajs/react';
-import { FaTrash, FaReply, FaEnvelope, FaPalette } from 'react-icons/fa';
+import { FaTrash, FaReply, FaEnvelope, FaPalette, FaUsers } from 'react-icons/fa';
 
-const Dashboard = ({ stats, obrak, kontaktuak }) => {
+const Dashboard = ({ stats, obrak, kontaktuak, erabiltzaileak }) => {
     const { auth } = usePage().props;
     const [showModal, setShowModal] = useState(false);
     
-    // TAB kudeaketa: 'obrak' edo 'mezuak'
+    // TAB kudeaketa: 'obrak', 'mezuak' edo 'erabiltzaileak'
     const [activeTab, setActiveTab] = useState('obrak');
 
+    // MODAL ERANTZUNAK
+    const [replyMessage, setReplyMessage] = useState(null); // Gordeko du zein mezuri ari garen erantzuten
+
     // --- OBRA BERRIA FORMULARIOA ---
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, reset } = useForm({
         izenburua: '', artista: '', data: new Date().getFullYear().toString(),
         mota: 'modernoa', deskribapena: '', kokalekua: '', irudia: null, egoera: 'galeria',
         prezioa: '', hasierako_prezioa: '', enkante_amaiera: ''
     });
 
-    const handleSubmit = (e) => {
+    // --- ERANTZUN FORMULARIOA ---
+    const { data: replyData, setData: setReplyData, post: postReply, processing: processingReply, reset: resetReply } = useForm({
+        erantzuna: ''
+    });
+
+    const handleSubmitObra = (e) => {
         e.preventDefault();
         if (data.egoera === 'galeria') { data.prezioa = null; data.hasierako_prezioa = null; data.enkante_amaiera = null; }
         else if (data.egoera === 'denda') { data.hasierako_prezioa = null; data.enkante_amaiera = null; }
@@ -31,16 +39,29 @@ const Dashboard = ({ stats, obrak, kontaktuak }) => {
         });
     };
 
+    const handleSendReply = (e) => {
+        e.preventDefault();
+        postReply(`/admin/kontaktuak/${replyMessage.id}/erantzun`, {
+            onSuccess: () => {
+                alert("✉️ Erantzuna ondo bidali da erabiltzailearen emailera!");
+                setReplyMessage(null);
+                resetReply();
+            }
+        });
+    };
+
     // --- EZABATZEKO FUNTZIOAK ---
     const handleDeleteObra = (id) => {
-        if (confirm('⚠️ Ziur zaude obra hau ezabatu nahi duzula? Webgunetik guztiz desagertuko da.')) {
-            router.delete(`/admin/obrak/${id}`);
-        }
+        if (confirm('⚠️ Ziur zaude obra hau ezabatu nahi duzula?')) router.delete(`/admin/obrak/${id}`);
     };
 
     const handleDeleteMezua = (id) => {
-        if (confirm('Ziur mezua ezabatu nahi duzula?')) {
-            router.delete(`/admin/kontaktuak/${id}`);
+        if (confirm('Ziur mezua ezabatu nahi duzula?')) router.delete(`/admin/kontaktuak/${id}`);
+    };
+
+    const handleDeleteUser = (id) => {
+        if (confirm('🚨 KONTUZ! Ziur zaude erabiltzaile hau guztiz ezabatu nahi duzula? Bere datu guztiak galduko dira.')) {
+            router.delete(`/admin/erabiltzaileak/${id}`);
         }
     };
 
@@ -69,43 +90,25 @@ const Dashboard = ({ stats, obrak, kontaktuak }) => {
                 </div>
 
                 {/* --- NABIGAZIO FITXAK (TABS) --- */}
-<ul className="nav nav-tabs mb-4 fs-5 fw-bold border-0 shadow-sm rounded p-1 bg-light">
-    <li className="nav-item flex-fill">
-        <button 
-            className={`nav-link w-100 py-3 transition-all ${activeTab === 'obrak' 
-                ? 'active bg-dark border-warning border-3 border-bottom' 
-                : 'bg-white border-0 opacity-75'}`} 
-            onClick={() => setActiveTab('obrak')}
-            style={{ borderRadius: '8px 8px 0 0' }}
-        >
-            <span style={{ color: activeTab === 'obrak' ? '#ffc107' : '#000000' }}>
-                <FaPalette className="me-2"/> Obrak Kudeatu
-            </span>
-        </button>
-    </li>
-    
-    <li className="nav-item flex-fill">
-        <button 
-            className={`nav-link w-100 py-3 transition-all ${activeTab === 'mezuak' 
-                ? 'active bg-dark border-warning border-3 border-bottom' 
-                : 'bg-white border-0 opacity-75'}`} 
-            onClick={() => setActiveTab('mezuak')}
-            style={{ borderRadius: '8px 8px 0 0' }}
-        >
-           
-            <span style={{ color: activeTab === 'mezuak' ? '#ffc107' : '#000000' }}>
-                <FaEnvelope className="me-2"/> Sarrerako Mezuak 
-                {kontaktuak.length > 0 && (
-                    <span className="badge bg-danger ms-2 rounded-pill fs-6 text-white" style={{color: 'white'}}>
-                        {kontaktuak.length}
-                    </span>
-                )}
-            </span>
-        </button>
-    </li>
-</ul>
+                <ul className="nav nav-tabs mb-4 fs-5 fw-bold border-0 shadow-sm rounded p-1 bg-light">
+                    <li className="nav-item flex-fill">
+                        <button className={`nav-link w-100 py-3 transition-all ${activeTab === 'obrak' ? 'active bg-dark border-warning border-3 border-bottom' : 'bg-white border-0 opacity-75'}`} onClick={() => setActiveTab('obrak')} style={{ borderRadius: '8px 8px 0 0' }}>
+                            <span style={{ color: activeTab === 'obrak' ? '#ffc107' : '#000000' }}><FaPalette className="me-2"/> Obrak Kudeatu</span>
+                        </button>
+                    </li>
+                    <li className="nav-item flex-fill">
+                        <button className={`nav-link w-100 py-3 transition-all ${activeTab === 'mezuak' ? 'active bg-dark border-warning border-3 border-bottom' : 'bg-white border-0 opacity-75'}`} onClick={() => setActiveTab('mezuak')} style={{ borderRadius: '8px 8px 0 0' }}>
+                            <span style={{ color: activeTab === 'mezuak' ? '#ffc107' : '#000000' }}><FaEnvelope className="me-2"/> Sarrerako Mezuak {kontaktuak.length > 0 && <span className="badge bg-danger ms-2 rounded-pill fs-6">{kontaktuak.length}</span>}</span>
+                        </button>
+                    </li>
+                    <li className="nav-item flex-fill">
+                        <button className={`nav-link w-100 py-3 transition-all ${activeTab === 'erabiltzaileak' ? 'active bg-dark border-warning border-3 border-bottom' : 'bg-white border-0 opacity-75'}`} onClick={() => setActiveTab('erabiltzaileak')} style={{ borderRadius: '8px 8px 0 0' }}>
+                            <span style={{ color: activeTab === 'erabiltzaileak' ? '#ffc107' : '#000000' }}><FaUsers className="me-2"/> Erabiltzaileak</span>
+                        </button>
+                    </li>
+                </ul>
 
-                {/* --- 1. FITXA: OBRAK KUDEATU --- */}
+                {/* --- 1. FITXA: OBRAK --- */}
                 {activeTab === 'obrak' && (
                     <div className="card border-0 shadow-sm bg-white rounded-3 overflow-hidden">
                         <div className="table-responsive">
@@ -115,24 +118,79 @@ const Dashboard = ({ stats, obrak, kontaktuak }) => {
                                         <th>Irudia</th>
                                         <th>Izenburua & Artista</th>
                                         <th>Mota</th>
-                                        <th>Kokalekua (Egoera)</th>
+                                        <th>Egoera</th>
                                         <th className="text-end">Ekintzak</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {obrak.length === 0 ? (<tr><td colSpan="5" className="text-center py-4 text-muted">Ez dago obrarik kargatuta.</td></tr>) : null}
                                     {obrak.map((obra) => (
                                         <tr key={obra.id}>
                                             <td><img src={obra.irudia} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '5px' }} /></td>
                                             <td><span className="fw-bold">{obra.izenburua}</span><br/><small className="text-muted">{obra.artista}</small></td>
                                             <td><span className="badge bg-secondary">{obra.mota}</span></td>
-                                            <td>
-                                                {obra.enkante_amaiera ? <span className="badge bg-warning text-dark">Enkantea</span> :
-                                                 obra.prezioa ? <span className="badge bg-success">Denda</span> :
-                                                 <span className="badge bg-info text-dark">Galeria</span>}
-                                            </td>
+                                            <td>{obra.enkante_amaiera ? <span className="badge bg-warning text-dark">Enkantea</span> : obra.prezioa ? <span className="badge bg-success">Denda</span> : <span className="badge bg-info text-dark">Galeria</span>}</td>
+                                            <td className="text-end"><button onClick={() => handleDeleteObra(obra.id)} className="btn btn-sm btn-outline-danger"><FaTrash /> Ezabatu</button></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* --- 2. FITXA: MEZUAK --- */}
+                {activeTab === 'mezuak' && (
+                    <div className="row g-4">
+                        {kontaktuak.length === 0 ? (<div className="col-12"><div className="alert alert-info text-center fs-5">Ez daukazu mezu berririk une honetan. 🎉</div></div>) : null}
+                        {kontaktuak.map((mezua) => (
+                            <div className="col-md-6" key={mezua.id}>
+                                <div className="card h-100 border-0 shadow-sm border-start border-warning border-4">
+                                    <div className="card-body">
+                                        <h5 className="fw-bold text-dark mb-1">{mezua.izena}</h5>
+                                        <p className="text-muted small mb-3">📧 {mezua.email} | 🕒 {new Date(mezua.created_at).toLocaleDateString('eu-ES')}</p>
+                                        <div className="bg-light p-3 rounded text-dark fst-italic mb-3">"{mezua.mezua}"</div>
+                                    </div>
+                                    <div className="card-footer bg-white border-0 d-flex justify-content-between pt-0">
+                                        {/* AHORA ESTO ABRE EL MODAL DE RESPUESTA INTERNA */}
+                                        <button onClick={() => setReplyMessage(mezua)} className="btn btn-sm btn-dark d-flex align-items-center gap-2">
+                                            <FaReply /> Erantzun
+                                        </button>
+                                        <button onClick={() => handleDeleteMezua(mezua.id)} className="btn btn-sm btn-outline-danger"><FaTrash /></button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* --- 3. FITXA: ERABILTZAILEAK (NUEVA) --- */}
+                {activeTab === 'erabiltzaileak' && (
+                    <div className="card border-0 shadow-sm bg-white rounded-3 overflow-hidden">
+                        <div className="table-responsive">
+                            <table className="table table-hover align-middle mb-0">
+                                <thead className="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Izena</th>
+                                        <th>Emaila</th>
+                                        <th>Sorrera Data</th>
+                                        <th className="text-end">Ekintzak</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {erabiltzaileak.map((user) => (
+                                        <tr key={user.id}>
+                                            <td className="fw-bold text-muted">#{user.id}</td>
+                                            <td className="fw-bold">{user.izena} {user.abizena}</td>
+                                            <td>{user.email}</td>
+                                            <td>{new Date(user.created_at).toLocaleDateString('eu-ES')}</td>
                                             <td className="text-end">
-                                                <button onClick={() => handleDeleteObra(obra.id)} className="btn btn-sm btn-outline-danger" title="Ezabatu Obra">
+                                                <button 
+                                                    onClick={() => handleDeleteUser(user.id)} 
+                                                    className="btn btn-sm btn-outline-danger" 
+                                                    disabled={auth.user.id === user.id}
+                                                    title={auth.user.id === user.id ? "Ezin duzu zure burua ezabatu" : "Ezabatu kontua"}
+                                                >
                                                     <FaTrash /> Ezabatu
                                                 </button>
                                             </td>
@@ -143,42 +201,46 @@ const Dashboard = ({ stats, obrak, kontaktuak }) => {
                         </div>
                     </div>
                 )}
-
-                {/* --- 2. FITXA: SARRERAKO MEZUAK --- */}
-                {activeTab === 'mezuak' && (
-                    <div className="row g-4">
-                        {kontaktuak.length === 0 ? (
-                            <div className="col-12"><div className="alert alert-info text-center fs-5">Ez daukazu mezu berririk une honetan. 🎉</div></div>
-                        ) : null}
-                        
-                        {kontaktuak.map((mezua) => (
-                            <div className="col-md-6" key={mezua.id}>
-                                <div className="card h-100 border-0 shadow-sm border-start border-warning border-4">
-                                    <div className="card-body">
-                                        <h5 className="fw-bold text-dark mb-1">{mezua.izena}</h5>
-                                        <p className="text-muted small mb-3">📧 {mezua.email} | 🕒 {new Date(mezua.created_at).toLocaleDateString('eu-ES')}</p>
-                                        <div className="bg-light p-3 rounded text-dark fst-italic mb-3">
-                                            "{mezua.mezua}"
-                                        </div>
-                                    </div>
-                                    <div className="card-footer bg-white border-0 d-flex justify-content-between pt-0">
-                                        {/* ERANTZUN BOTOIA (Zuzenean emaila irekitzen du) */}
-                                        <a href={`mailto:${mezua.email}?subject=Artetxea - Zure mezuari erantzuna`} className="btn btn-sm btn-dark d-flex align-items-center gap-2">
-                                            <FaReply /> Erantzun
-                                        </a>
-                                        {/* EZABATU BOTOIA */}
-                                        <button onClick={() => handleDeleteMezua(mezua.id)} className="btn btn-sm btn-outline-danger">
-                                            <FaTrash />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
             </div>
 
-            {/* MODALA (Lehendik zeneukan formularioa berdina da) */}
+            {/* --- MODAL PARA REDACTAR EL EMAIL DE RESPUESTA --- */}
+            {replyMessage && (
+                <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999 }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content border-0 shadow-lg">
+                            <div className="modal-header bg-dark text-white border-bottom-0">
+                                <h5 className="modal-title fw-bold">✉️ Erantzun: {replyMessage.izena}</h5>
+                                <button className="btn-close btn-close-white" onClick={() => setReplyMessage(null)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="mb-3 p-3 bg-light border-start border-warning border-4 rounded">
+                                    <small className="text-muted d-block fw-bold mb-1">Bere mezua:</small>
+                                    <em className="text-dark">"{replyMessage.mezua}"</em>
+                                </div>
+                                <form onSubmit={handleSendReply}>
+                                    <label className="fw-bold mb-2">Zure Erantzuna (Zuzenean emailera joango da):</label>
+                                    <textarea 
+                                        className="form-control mb-3" 
+                                        rows="5" 
+                                        value={replyData.erantzuna} 
+                                        onChange={e => setReplyData('erantzuna', e.target.value)} 
+                                        placeholder="Idatzi zure erantzuna hemen..."
+                                        required
+                                    ></textarea>
+                                    <div className="d-flex justify-content-end gap-2">
+                                        <button type="button" className="btn btn-light fw-bold" onClick={() => setReplyMessage(null)}>Utzi</button>
+                                        <button type="submit" className="btn btn-warning fw-bold text-dark" disabled={processingReply}>
+                                            {processingReply ? 'Bidaltzen...' : '🚀 Emaila Bidali'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- MODAL DE OBRA BERRIA (Manteniendo el tuyo) --- */}
             {showModal && (
                 <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999 }}>
                     <div className="modal-dialog modal-lg modal-dialog-scrollable mt-5">
@@ -188,8 +250,7 @@ const Dashboard = ({ stats, obrak, kontaktuak }) => {
                                 <button className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
                             </div>
                             <div className="modal-body px-4">
-                                {/* Oharra: Formularioaren kodea lehenagoko berbera da, ez dut errepikatu lekua ez jateagatik, baina utzi ondoan behean dagoen kode bera */}
-                                <form onSubmit={handleSubmit}>
+                                <form onSubmit={handleSubmitObra}>
                                     <div className="row g-3">
                                         <div className="col-md-6"><label className="fw-bold">Izenburua</label><input type="text" className="form-control" value={data.izenburua} onChange={e => setData('izenburua', e.target.value)} required /></div>
                                         <div className="col-md-6"><label className="fw-bold">Artista</label><input type="text" className="form-control" value={data.artista} onChange={e => setData('artista', e.target.value)} required /></div>
@@ -229,7 +290,6 @@ const Dashboard = ({ stats, obrak, kontaktuak }) => {
                     </div>
                 </div>
             )}
-
         </div>
     );
 };
