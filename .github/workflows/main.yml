@@ -1,4 +1,4 @@
-name: Deploy React to EC2
+name: Deploy Laravel to EC2
 
 on:
   push:
@@ -18,18 +18,29 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1. Entrar en la carpeta y asegurar que Git la reconoce
+            # 1. Entrar en la carpeta y actualizar código
             cd /var/www/html/Taldea4_Erronkaa || { echo "Carpeta no encontrada"; exit 1; }
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
-            
-            # 2. Forzar la actualización para que aparezca el docker-compose.yml
             sudo git fetch --all
             sudo git reset --hard origin/main
             
-            # 3. Parar contenedores antiguos (el || true evita que falle si no existen)
+            # 2. Gestionar contenedores
             sudo docker stop mi_web || true
             sudo docker rm mi_web || true
             
-            # 4. Levantar con la nueva configuración
-            # Usamos la ruta completa para que Docker no se pierda
+            # 3. Levantar la nueva versión
             sudo docker compose -f /var/www/html/Taldea4_Erronkaa/docker-compose.yml up -d --build
+
+            # --- CAMBIOS PARA LARAVEL AUTOMÁTICO ---
+            
+            # 4. Preparar entorno (.env y Key)
+            sudo docker exec mi_web cp /var/www/html/Taldea4_Erronka/.env.example /var/www/html/Taldea4_Erronka/.env || true
+            sudo docker exec mi_web php /var/www/html/Taldea4_Erronka/artisan key:generate --force
+
+            # 5. Preparar Base de Datos SQLite
+            sudo docker exec mi_web mkdir -p /var/www/html/Taldea4_Erronka/database
+            sudo docker exec mi_web touch /var/www/html/Taldea4_Erronka/database/database.sqlite
+            sudo docker exec mi_web chown -R www-data:www-data /var/www/html/Taldea4_Erronka/database
+            
+            # 6. Ejecutar migraciones (Para crear las tablas como 'sessions')
+            sudo docker exec mi_web php /var/www/html/Taldea4_Erronka/artisan migrate --force
