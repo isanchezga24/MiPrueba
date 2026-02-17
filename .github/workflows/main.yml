@@ -18,22 +18,19 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1. Entrar en la carpeta del repositorio
-            cd /var/www/html/Taldea4_Erronkaa || { echo "Carpeta no encontrada"; exit 1; }
+            # Entrar en el repo
+            cd /var/www/html/Taldea4_Erronkaa || exit 1
             
-            # 2. Limpiar cambios locales y actualizar código
+            # Actualizar código
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
             sudo git fetch --all
             sudo git reset --hard origin/main
             
-            # 3. Reconstruir y levantar los contenedores
+            # Reconstruir contenedor
             sudo docker compose up -d --build
             
-            # 4. Esperar 5 segundos a que el contenedor esté listo
+            # Esperar a que PHP arranque
             sleep 5
             
-            # 5. Ejecutar las migraciones de la base de datos
-            sudo docker exec mi_web php Taldea4_Erronka/artisan migrate --force
-            
-            # 6. Asegurar permisos de escritura tras la migración
-            sudo docker exec mi_web chown -R www-data:www-data /var/www/html/Taldea4_Erronka/database
+            # Ejecutar migraciones (dentro de la carpeta del proyecto en el contenedor)
+            sudo docker exec mi_web php /var/www/html/Taldea4_Erronka/artisan migrate --force
