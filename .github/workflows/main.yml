@@ -1,4 +1,4 @@
-name: Deploy Laravel to EC2
+name: Deploy Laravel Project
 
 on:
   push:
@@ -18,9 +18,21 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /var/www/html/Taldea4_Erronkaa
+            cd /var/www/html/Taldea4_Erronkaa || exit 1
+            
+            # Actualizar código
+            sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
             sudo git fetch --all
             sudo git reset --hard origin/main
+            
+            # Levantar Docker
             sudo docker compose up -d --build
-            sleep 5
-            sudo docker exec mi_web php /var/www/html/Taldea4_Erronka/artisan migrate --force
+            
+            # Esperar a que el contenedor inicie
+            sleep 10
+            
+            # Ejecutar migraciones (Arregla el error de no such table: sessions)
+            sudo docker exec mi_web php Taldea4_Erronka/artisan migrate --force
+            
+            # Asegurar permisos de la base de datos tras migrar
+            sudo docker exec mi_web chown -R www-data:www-data /var/www/html/Taldea4_Erronka/database
