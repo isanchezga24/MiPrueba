@@ -17,24 +17,30 @@ jobs:
           host: 54.242.1.46
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          # Aumentamos los tiempos de espera por si hay latencia en la red
+          timeout: 60s
+          command_timeout: 10m
           script: |
-            # Entrar en la carpeta del repositorio
+            # 1. Entrar en la carpeta del repositorio
             cd /var/www/html/Taldea4_Erronkaa || { echo "Carpeta no encontrada"; exit 1; }
 
-            # Sincronizar código con GitHub ignorando cambios locales
+            # 2. Sincronizar el código ignorando cualquier cambio local
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
             sudo git fetch --all
             sudo git reset --hard origin/main
 
-            # Reconstruir imagen de Docker (Ejecuta composer y npm build)
+            # 3. Reconstruir la imagen de Docker (ejecuta composer install y npm run build)
             sudo docker compose up -d --build
 
-            # Pausa para asegurar el arranque del contenedor
+            # 4. Pausa para permitir que el contenedor inicie sus servicios
             sleep 10
 
-            # Ejecutar migraciones para crear las tablas
+            # 5. Ejecutar migraciones para crear las tablas (como la de 'sessions')
             sudo docker exec mi_web php Taldea4_Erronka/artisan migrate --force
-            
-            # Limpiar cachés y ajustar permisos de BD
+
+            # 6. Limpiar cachés de Laravel
             sudo docker exec mi_web php Taldea4_Erronka/artisan config:cache
+            sudo docker exec mi_web php Taldea4_Erronka/artisan view:clear
+
+            # 7. Asegurar que los permisos de la base de datos sean correctos
             sudo docker exec mi_web chown -R www-data:www-data /var/www/html/Taldea4_Erronka/database
