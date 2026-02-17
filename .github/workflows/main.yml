@@ -1,4 +1,4 @@
-name: Deploy Laravel Project
+name: Deploy Laravel Inertia Project
 
 on:
   push:
@@ -18,21 +18,22 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /var/www/html/Taldea4_Erronkaa || exit 1
+            # Entrar en la carpeta del repositorio
+            cd /var/www/html/Taldea4_Erronkaa || { echo "Carpeta no encontrada"; exit 1; }
             
-            # Sincronizar repositorio
+            # Sincronizar el código con GitHub
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
             sudo git fetch --all
             sudo git reset --hard origin/main
             
-            # Levantar Docker con construcción de imagen (tardará un poco por el npm build)
+            # Levantar los contenedores y reconstruir la imagen (compila Vite aquí)
             sudo docker compose up -d --build
             
-            # Esperar a que el contenedor esté listo
+            # Pausa para asegurar que el contenedor PHP esté listo
             sleep 10
             
-            # Ejecutar migraciones (Crea las tablas como 'sessions')
+            # Ejecutar migraciones (Crea las tablas necesarias para Inertia)
             sudo docker exec mi_web php Taldea4_Erronka/artisan migrate --force
             
-            # Asegurar permisos tras la migración
+            # Re-asegurar permisos de la base de datos tras la migración
             sudo docker exec mi_web chown -R www-data:www-data /var/www/html/Taldea4_Erronka/database
