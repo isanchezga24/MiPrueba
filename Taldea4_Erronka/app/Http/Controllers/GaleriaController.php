@@ -13,21 +13,21 @@ class GaleriaController extends Controller
     // 1. GALERIA ERAKUTSI
    public function index()
     {
-        // OBRA GUZTIAK kargatuko ditugu
-        $obrak = Obra::withCount('likes') 
-            ->get()
-            ->map(function ($obra) {
-                return [
-                    'id' => $obra->id,
-                    'izenburua' => $obra->izenburua,
-                    'artista' => $obra->artista,
-                    'irudia' => $obra->irudia,
-                    'mota' => $obra->mota,
-                    'kokalekua' => $obra->kokalekua,
-                    'likes_count' => $obra->likes_count,
-                    'is_liked' => Auth::check() ? $obra->likes()->where('user_id', Auth::id())->exists() : false,
-                ];
-            });
+        $obrak = Obra::with('likes')->get()->map(function ($obra) {
+            return [
+                'id' => $obra->id,
+                'izenburua' => $obra->izenburua,
+                'artista' => $obra->artista,
+                'irudia' => $obra->irudia,
+                'mota' => $obra->mota, 
+                'kokalekua' => $obra->kokalekua, 
+                'likes_count' => $obra->likes->count(),
+      
+                'is_liked' => Auth::check() ? $obra->likes->where('user_id', Auth::id())->count() > 0 : false,
+            ];
+        });
+
+        $obrak = $obrak->sortByDesc('likes_count')->values();
 
         return Inertia::render('Galeria', [
             'obrak' => $obrak

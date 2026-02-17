@@ -13,14 +13,12 @@ use App\Mail\ErosketaEgina;
 class ErosketaController extends Controller
 {
     // 1. EROSKETAK ORRIA ERAKUTSI (Produktuekin)
-    public function index()
+  public function index()
     {
-        // Salgai daudenak: Prezioa dute, EZ dira enkantea, eta EZ daude salduta
         $obras = Obra::whereNotNull('prezioa')
-            ->whereNull('enkante_amaiera') // Ez direnak enkantea
-            ->whereNull('eroslea_id')      // Ez daudenak salduta
+            ->whereNull('enkante_amaiera')
+            ->whereNull('eroslea_id')
             ->whereNull('irabazlea_id')
-            ->with(['likes']) // Like-ak kargatzeko
             ->get()
             ->map(function ($obra) {
                 return [
@@ -30,8 +28,6 @@ class ErosketaController extends Controller
                     'irudia' => $obra->irudia,
                     'prezioa' => $obra->prezioa,
                     'mota' => $obra->mota,
-                    'likes_count' => $obra->likes->count(),
-                    'is_liked' => $obra->isLikedBy(Auth::user()),
                 ];
             });
 
