@@ -11,7 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy via SSH
+      - name: Deploy via SSH to EC2
         uses: appleboy/ssh-action@master
         with:
           host: 54.242.1.46
@@ -20,19 +20,19 @@ jobs:
           script: |
             cd /var/www/html/Taldea4_Erronkaa || exit 1
             
-            # Actualizar código
+            # Sincronizar repositorio
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
             sudo git fetch --all
             sudo git reset --hard origin/main
             
-            # Levantar Docker
+            # Levantar Docker con construcción de imagen (tardará un poco por el npm build)
             sudo docker compose up -d --build
             
-            # Esperar a que el contenedor inicie
+            # Esperar a que el contenedor esté listo
             sleep 10
             
-            # Ejecutar migraciones (Arregla el error de no such table: sessions)
+            # Ejecutar migraciones (Crea las tablas como 'sessions')
             sudo docker exec mi_web php Taldea4_Erronka/artisan migrate --force
             
-            # Asegurar permisos de la base de datos tras migrar
+            # Asegurar permisos tras la migración
             sudo docker exec mi_web chown -R www-data:www-data /var/www/html/Taldea4_Erronka/database
