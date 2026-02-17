@@ -18,29 +18,22 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1. Entrar en la carpeta y actualizar código
+            # 1. Entrar en la carpeta del repositorio
             cd /var/www/html/Taldea4_Erronkaa || { echo "Carpeta no encontrada"; exit 1; }
+            
+            # 2. Limpiar cambios locales y actualizar código
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
             sudo git fetch --all
             sudo git reset --hard origin/main
             
-            # 2. Gestionar contenedores
-            sudo docker stop mi_web || true
-            sudo docker rm mi_web || true
+            # 3. Reconstruir y levantar los contenedores
+            sudo docker compose up -d --build
             
-            # 3. Levantar la nueva versión
-            sudo docker compose -f /var/www/html/Taldea4_Erronkaa/docker-compose.yml up -d --build
-
-            # --- CAMBIOS PARA LARAVEL AUTOMÁTICO ---
+            # 4. Esperar 5 segundos a que el contenedor esté listo
+            sleep 5
             
-            # 4. Preparar entorno (.env y Key)
-            sudo docker exec mi_web cp /var/www/html/Taldea4_Erronka/.env.example /var/www/html/Taldea4_Erronka/.env || true
-            sudo docker exec mi_web php /var/www/html/Taldea4_Erronka/artisan key:generate --force
-
-            # 5. Preparar Base de Datos SQLite
-            sudo docker exec mi_web mkdir -p /var/www/html/Taldea4_Erronka/database
-            sudo docker exec mi_web touch /var/www/html/Taldea4_Erronka/database/database.sqlite
+            # 5. Ejecutar las migraciones de la base de datos
+            sudo docker exec mi_web php Taldea4_Erronka/artisan migrate --force
+            
+            # 6. Asegurar permisos de escritura tras la migración
             sudo docker exec mi_web chown -R www-data:www-data /var/www/html/Taldea4_Erronka/database
-            
-            # 6. Ejecutar migraciones (Para crear las tablas como 'sessions')
-            sudo docker exec mi_web php /var/www/html/Taldea4_Erronka/artisan migrate --force
