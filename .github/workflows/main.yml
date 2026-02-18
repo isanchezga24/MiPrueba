@@ -14,32 +14,17 @@ jobs:
       - name: Deploy via SSH to EC2
         uses: appleboy/ssh-action@master
         with:
-          host: 100.53.191.96  # <--- ESTA ES TU IP ACTUAL
+          host: 100.53.191.96
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1. Navegar al repositorio y actualizar código
             cd /var/www/html/Taldea4_Erronkaa || exit 1
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
             sudo git fetch --all
             sudo git reset --hard origin/main
-            
-            # 2. Entrar en la subcarpeta del proyecto
             cd Taldea4_Erronka
-            
-            # 3. Reconstruir los contenedores
             sudo docker compose up -d --build
-            
-            # 4. Esperar a que los servicios arranquen
             sleep 10
-            
-            # 5. Configuración interna usando el nombre real: artetxea-app
             sudo docker exec artetxea-app php artisan migrate --force
             sudo docker exec artetxea-app php artisan key:generate --force
-            
-            # 6. Limpiar cachés para refrescar Vite
-            sudo docker exec artetxea-app php artisan config:cache
-            sudo docker exec artetxea-app php artisan view:clear
-            
-            # 7. Permisos de carpetas críticas
             sudo docker exec artetxea-app chown -R www-data:www-data storage bootstrap/cache database
