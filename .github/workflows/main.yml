@@ -14,7 +14,7 @@ jobs:
       - name: Deploy via SSH to EC2
         uses: appleboy/ssh-action@master
         with:
-          host: 100.53.191.96
+          host: 100.53.191.96  # <--- REVISA SI ESTA IP SIGUE SIENDO LA CORRECTA EN AWS
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
@@ -22,9 +22,21 @@ jobs:
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
             sudo git fetch --all
             sudo git reset --hard origin/main
+            
+            # Entramos a la carpeta donde está el docker-compose.yml
             cd Taldea4_Erronka
+            
+            # Levantamos los contenedores
             sudo docker compose up -d --build
+            
+            # Esperamos a que el sistema inicie
             sleep 10
+            
+            # Comandos de Laravel en el contenedor real (artetxea-app)
             sudo docker exec artetxea-app php artisan migrate --force
             sudo docker exec artetxea-app php artisan key:generate --force
+            sudo docker exec artetxea-app php artisan config:cache
+            sudo docker exec artetxea-app php artisan view:clear
+            
+            # Permisos finales
             sudo docker exec artetxea-app chown -R www-data:www-data storage bootstrap/cache database
