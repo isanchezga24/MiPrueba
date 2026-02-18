@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Añadimos tiempo límite al job para que GitHub no lo mate antes de tiempo
     timeout-minutes: 30
     steps:
       - name: Checkout code
@@ -18,6 +19,7 @@ jobs:
           host: 98.88.81.170
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          # CRÍTICO: Esto evita que la conexión se cierre mientras Docker compila
           command_timeout: 30m
           script: |
             cd /var/www/html/Taldea4_Erronkaa || exit 1
@@ -27,15 +29,21 @@ jobs:
             
             cd Taldea4_Erronka
             
+            # Detenemos lo anterior para liberar RAM antes de compilar
             sudo docker compose down
+            
+            # Levantamos y construimos
             sudo docker compose up -d --build
             
+            # Esperamos un poco más para que PHP-FPM y DB arranquen bien
             sleep 20
             
-            sudo docker exec mi_web php artisan migrate --force
-            sudo docker exec mi_web php artisan key:generate --force
-            sudo docker exec mi_web php artisan config:cache
-            sudo docker exec mi_web php artisan view:clear
+            # Comandos de Laravel (Usando artetxea-app como pediste)
+            sudo docker exec artetxea-app php artisan migrate --force
+            sudo docker exec artetxea-app php artisan key:generate --force
+            sudo docker exec artetxea-app php artisan config:cache
+            sudo docker exec artetxea-app php artisan view:clear
             
-            sudo docker exec mi_web chown -R www-data:www-data storage bootstrap/cache database
-            sudo docker exec mi_web chmod -R 775 storage bootstrap/cache database
+            # Permisos finales
+            sudo docker exec artetxea-app chown -R www-data:www-data storage bootstrap/cache database
+            sudo docker exec artetxea-app chmod -R 775 storage bootstrap/cache database
