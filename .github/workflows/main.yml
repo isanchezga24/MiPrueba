@@ -7,6 +7,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # 1. Aumentamos el tiempo de espera del Job a 30 minutos
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -17,31 +19,28 @@ jobs:
           host: 98.88.81.170
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          # 2. Aumentamos el tiempo de espera de la conexión SSH
           command_timeout: 30m
           script: |
-            set -e
-
-            # Aseguramos que el directorio existe
-            sudo mkdir -p /var/www/html/Taldea4_Erronkaa
-            cd /var/www/html/Taldea4_Erronkaa
-
-            # Configurar git y asegurarse de que el remote apunta al repo correcto
+            cd /var/www/html/Taldea4_Erronkaa || exit 1
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
-            sudo git remote set-url origin https://github.com/isanchezga24/MiPrueba.git
             sudo git fetch --all
             sudo git reset --hard origin/main
-
-            # Verificar que docker-compose.yml existe
-            ls -la docker-compose.yml
-
-            # Parar contenedor anterior si existe
-            sudo docker compose down || true
-
-            # Levantamos los contenedores desde la raíz (donde está docker-compose.yml)
+            
+            cd Taldea4_Erronka
+            
+            # 3. Forzamos la reconstrucción
             sudo docker compose up -d --build
-
-            # Esperamos a que el contenedor arranque y ejecute las migraciones
+            
+            # Damos tiempo extra para que el contenedor se estabilice
             sleep 20
-
-            # Verificar que el contenedor está corriendo
-            sudo docker ps | grep artetxea-app
+            
+            # Comandos de Laravel
+            sudo docker exec artetxea-app php artisan migrate --force
+            sudo docker exec artetxea-app php artisan key:generate --force
+            sudo docker exec artetxea-app php artisan config:cache
+            sudo docker exec artetxea-app php artisan view:clear
+            
+            # Permisos
+            sudo docker exec artetxea-app chown -R www-data:www-data storage bootstrap/cache database
+            sudo docker exec artetxea-app chmod -R 775 storage bootstrap/cache database
