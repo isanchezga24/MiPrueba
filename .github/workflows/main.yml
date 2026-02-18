@@ -24,13 +24,17 @@ jobs:
             sudo mkdir -p /var/www/html/Taldea4_Erronkaa
             cd /var/www/html/Taldea4_Erronkaa
 
-            # Configurar git y actualizar el código
+            # Configurar git y asegurarse de que el remote apunta al repo correcto
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
+            sudo git remote set-url origin https://github.com/isanchezga24/MiPrueba.git
             sudo git fetch --all
             sudo git reset --hard origin/main
 
             # Verificar que docker-compose.yml existe
             ls -la docker-compose.yml
+
+            # Parar contenedor anterior si existe
+            sudo docker compose down || true
 
             # Levantamos los contenedores desde la raíz (donde está docker-compose.yml)
             sudo docker compose up -d --build
