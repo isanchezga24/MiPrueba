@@ -7,8 +7,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Le damos 20 minutos para que no corte la conexión mientras compila
-    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,25 +17,31 @@ jobs:
           host: 98.88.81.170
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          # Aumentamos también el timeout del plugin de SSH
-          command_timeout: 20m
+          command_timeout: 30m
           script: |
-            cd /var/www/html/Taldea4_Erronkaa || exit 1
+            set -e
+
+            # Aseguramos que el directorio existe
+            sudo mkdir -p /var/www/html/Taldea4_Erronkaa
+            cd /var/www/html/Taldea4_Erronkaa
+
+            # Configurar git y asegurarse de que el remote apunta al repo correcto
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
+            sudo git remote set-url origin https://github.com/isanchezga24/MiPrueba.git
             sudo git fetch --all
             sudo git reset --hard origin/main
-            
-            cd Taldea4_Erronka
-            
-            # El build es lo que tarda mucho
+
+            # Verificar que docker-compose.yml existe
+            ls -la docker-compose.yml
+
+            # Parar contenedor anterior si existe
+            sudo docker compose down || true
+
+            # Levantamos los contenedores desde la raíz (donde está docker-compose.yml)
             sudo docker compose up -d --build
-            
-            sleep 15
-            
-            sudo docker exec artetxea-app php artisan migrate --force
-            sudo docker exec artetxea-app php artisan key:generate --force
-            sudo docker exec artetxea-app php artisan config:cache
-            sudo docker exec artetxea-app php artisan view:clear
-            
-            sudo docker exec artetxea-app chown -R www-data:www-data storage bootstrap/cache database
-            sudo docker exec artetxea-app chmod -R 775 storage bootstrap/cache database
+
+            # Esperamos a que el contenedor arranque y ejecute las migraciones
+            sleep 20
+
+            # Verificar que el contenedor está corriendo
+            sudo docker ps | grep artetxea-app
