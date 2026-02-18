@@ -1,27 +1,35 @@
-- name: Deploy via SSH to EC2
+name: Deploy Laravel Project
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy via SSH to EC2
         uses: appleboy/ssh-action@master
         with:
           host: 100.53.191.96
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1. Entramos a la carpeta del repositorio
             cd /var/www/html/Taldea4_Erronkaa || exit 1
-            
-            # 2. Actualizamos el código
             sudo git config --global --add safe.directory /var/www/html/Taldea4_Erronkaa
             sudo git fetch --all
             sudo git reset --hard origin/main
             
-            # 3. LA CLAVE: Entramos donde está el docker-compose.yml real
-            # Si el archivo está en la raíz de 'Taldea4_Erronka', entramos ahí:
-            cd Taldea4_Erronka || echo "Ya estamos en la carpeta correcta"
+            # Entramos a la subcarpeta donde está el docker-compose.yml
+            cd Taldea4_Erronka
             
-            # 4. Levantamos el contenedor
             sudo docker compose up -d --build
             
-            # 5. Esperamos a que inicie y ejecutamos los comandos de Laravel
             sleep 10
+            # Ejecutamos comandos dentro del contenedor mi_web
             sudo docker exec mi_web php artisan migrate --force
             sudo docker exec mi_web php artisan key:generate --force
             sudo docker exec mi_web chown -R www-data:www-data storage database
